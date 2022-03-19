@@ -1,8 +1,7 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request
 import os
-import numpy as np
 import yaml
-import joblib 
+import joblib
 
 webapp_root = "webapp"
 params_path = "params.yaml"
@@ -10,32 +9,37 @@ params_path = "params.yaml"
 static_dir = os.path.join(webapp_root, "static")
 template_dir = os.path.join(webapp_root, "templates")
 
-app = Flask(__name__, static_folder=static_dir,template_folder=template_dir)
+app = Flask(__name__, static_folder=static_dir, template_folder=template_dir)
 
-class  NotANumber(Exception):
+
+class NotANumber(Exception):
     def __init__(self, message="Values entered are not Numerical"):
         self.message = message
         super().__init__(self.message)
+
 
 def read_params(config_path):
     with open(config_path) as yaml_file:
         config = yaml.safe_load(yaml_file)
     return config
 
+
 def predict(data):
     config = read_params(params_path)
     model_dir_path = config["model_webapp_dir"]
     model = joblib.load(model_dir_path)
     prediction = model.predict(data).tolist()[0]
-    return prediction 
+    return prediction
+
 
 def validate_input(dict_request):
     for _, val in dict_request.items():
         try:
-            val=float(val)
-        except Exception as e:
+            val = float(val)
+        except Exception:
             raise NotANumber
     return True
+
 
 def form_response(dict_request):
     try:
@@ -45,8 +49,9 @@ def form_response(dict_request):
             response = predict(data)
             return response
     except NotANumber as e:
-        response =  str(e)
-        return response 
+        response = str(e)
+        return response
+
 
 @app.route("/", methods=["GET", "POST"])
 def index():
@@ -64,5 +69,6 @@ def index():
     else:
         return render_template("index.html")
 
+
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)
