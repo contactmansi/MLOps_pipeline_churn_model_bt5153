@@ -1,7 +1,7 @@
 churn_model
 ==============================
 
-ML Pipeline DEMO
+ML Pipeline DEMO in BT5153
 
 Project Organization
 ------------
